@@ -2,6 +2,7 @@
 
 A simple demonstration of the Notus API for Web3 account abstraction. This demo shows how to integrate and interact with smart contracts using Notus as a gateway, making Web3 development more accessible.
 
+See the demo in action at https://notus-api-nextjs-wagmi-demo.vercel.app/
 ## 🚀 Quick Start
 
 1. Install dependencies:
