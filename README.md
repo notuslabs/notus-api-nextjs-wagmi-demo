@@ -6,7 +6,7 @@ A simple demonstration of the Notus API for Web3 account abstraction. This demo 
 
 1. Install dependencies:
 ```bash
-npm install
+npm install --force
 ```
 
 2. Set up environment variables:
