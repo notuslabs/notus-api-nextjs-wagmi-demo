@@ -19,10 +19,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import Link from "next/link";
 import { parseUnits } from "viem";
-import { Skeleton } from "@/components/ui/skeleton";
+import { MainSection } from "@/components/main-section";
 
+// Schema for validating form input - requires a valid Ethereum address and positive amount
 const formSchema = z.object({
 	tokenAddress: z
 		.string()
@@ -36,6 +36,7 @@ export function MainPage() {
 	const { writeContract } = useWriteContract();
 	const { readContract, waitForTransactionReceipt } = usePublicClient();
 
+	// Fetch the user's Account Abstraction wallet address
 	const { data, isLoading } = useAccountAbstraction();
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -46,12 +47,15 @@ export function MainPage() {
 		},
 	});
 
+	// Handles the token transfer to the user's Account Abstraction wallet
 	const { mutateAsync: submit, isPending: isSubmitting } = useMutation({
 		mutationFn: async ({
 			tokenAddress,
 			amount,
 		}: z.infer<typeof formSchema>) => {
 			const id = toast.loading("Awaiting for approval...");
+
+			// First fetch token decimals to properly format the transfer amount
 			const decimals = await readContract({
 				abi: erc20Abi,
 				address: tokenAddress,
@@ -61,6 +65,7 @@ export function MainPage() {
 				throw error;
 			});
 
+			// Execute the ERC20 transfer to the AA wallet
 			writeContract(
 				{
 					abi: erc20Abi,
@@ -79,6 +84,7 @@ export function MainPage() {
 							hash: txHash,
 						});
 
+						// Show success message with link to block explorer
 						toast.success("Transaction successful", {
 							id,
 							action: {
@@ -106,29 +112,11 @@ export function MainPage() {
 	return (
 		<main className="container mx-auto p-8">
 			<div className="max-w-md mx-auto space-y-4">
-				<div>
-					<h1 className="text-2xl font-bold">
-						Transfer to your own Smart Wallet
-					</h1>
-					<div className="flex gap-1 text-sm text-gray-500">
-						<h2>Your funds will be sent to your own Smart Wallet</h2>
-						<Link
-							className="font-bold underline"
-							title={data?.wallet.accountAbstraction}
-							href={`${chain?.blockExplorers.default.url}/address/${data?.wallet.accountAbstraction}`}
-							target="_blank"
-						>
-							{isLoading ? (
-								<Skeleton className="inline-flex w-24 h-4" />
-							) : (
-								<p className="underline inline-flex text-sm">
-									{data?.wallet.accountAbstraction.slice(0, 6)}...
-									{data?.wallet.accountAbstraction.slice(-4)}
-								</p>
-							)}
-						</Link>
-					</div>
-				</div>
+				<MainSection
+					accountAbstraction={data?.wallet.accountAbstraction}
+					chain={chain}
+					isLoading={isLoading}
+				/>
 
 				{isConnected ? (
 					<div className="space-y-4">

@@ -1,4 +1,3 @@
-import "server-only";
 import ky from "ky";
 import { env } from "@/env";
 
